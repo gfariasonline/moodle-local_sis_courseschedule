@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/sis_courseschedule/db" VERSION="20261018" COMMENT="XMLDB file for Moodle local/sis_courseschedule"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_sis_courseschedule" COMMENT="Weekly access schedule rule, one per course">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course the rule applies to"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 when the restriction is active"/>
+        <FIELD NAME="timezone" TYPE="char" LENGTH="100" NOTNULL="true" DEFAULT="UTC" SEQUENCE="false" COMMENT="IANA timezone identifier of the course schedule"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign-unique" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="local_sis_courseschedule_slt" COMMENT="Allowed time interval of a course schedule">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="scheduleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Owning schedule"/>
+        <FIELD NAME="weekday" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="ISO weekday 1 (Monday) to 7 (Sunday)"/>
+        <FIELD NAME="startminute" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="Minute of the day, inclusive, 0-1439"/>
+        <FIELD NAME="endminute" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="Minute of the day, exclusive, 1-1440"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="scheduleid" TYPE="foreign" FIELDS="scheduleid" REFTABLE="local_sis_courseschedule" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="schedule-weekday" UNIQUE="false" FIELDS="scheduleid, weekday"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
