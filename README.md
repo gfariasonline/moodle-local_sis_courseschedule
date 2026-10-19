@@ -8,7 +8,7 @@ Per course, teachers or managers with the right capability can:
 
 * enable or disable the restriction;
 * choose the course time zone (IANA identifier);
-* define allowed weekdays and one or more time intervals per day.
+* select the allowed hours of each weekday in a weekly drag-select grid (one or more periods per day).
 
 Outside the allowed hours, the browser shows a notice with the allowed days, intervals and time zone, and web service functions covered by the plugin return the error `courseaccessclosed`. Users with the `local/sis_courseschedule:bypass` capability are not restricted. Each new online request is evaluated again.
 
@@ -54,7 +54,7 @@ to complete the installation from the command line.
 
 ## Usage ##
 
-Open the course, then _Course settings > Access schedules_ (or `/local/sis_courseschedule/edit.php?courseid=COURSEID`). Enable the rule, choose the time zone and add the allowed intervals. The start of an interval is inclusive and the end is exclusive. Days without intervals are closed.
+Open the course, then _Course settings > Access schedules_ (or `/local/sis_courseschedule/edit.php?courseid=COURSEID`). Enable the rule, choose the time zone and drag over the weekly grid to select the allowed hours (the list below the grid edits periods to the minute). The start of a period is inclusive and the end is exclusive. Days without periods are closed. Saving returns to the course page.
 
 A step-by-step tutorial (in Portuguese) is available in the project wiki:
 https://github.com/gfariasonline/moodle-local_sis_courseschedule/wiki/Tutorial-de-uso
