@@ -60,7 +60,7 @@ if ($data = $form->get_data()) {
     \local_sis_courseschedule\local\schedule_repository::save($course->id, !empty($data->enabled), $data->timezone, $slots);
     $saved = \local_sis_courseschedule\local\schedule_repository::get_by_course($course->id);
     redirect(
-        $url,
+        course_get_url($course),
         get_string(
             'schedulesaved',
             'local_sis_courseschedule',

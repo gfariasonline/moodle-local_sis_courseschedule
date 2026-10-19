@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_sis_courseschedule';
-$plugin->version = 2026101901;
+$plugin->version = 2026101902;
 $plugin->requires = 2024100700; // Moodle 4.5.
 $plugin->supported = [405, 503]; // Moodle 4.5 to 5.3 (branch numbers).
 $plugin->maturity = MATURITY_ALPHA;
