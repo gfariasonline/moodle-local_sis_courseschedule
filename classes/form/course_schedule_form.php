@@ -29,6 +29,7 @@ require_once($CFG->libdir . '/formslib.php');
  * elements: weekday, start and end as HH:MM; a row with both times empty is ignored.
  *
  * @package    local_sis_courseschedule
+ * @author     Thiago Serrão
  * @copyright  2026 SIS
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

@@ -28,6 +28,7 @@ use Exception;
  * and blocks 18:00:00. The wall clock of the course timezone decides, never the user's timezone.
  *
  * @package    local_sis_courseschedule
+ * @author     Thiago Serrão
  * @copyright  2026 SIS
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

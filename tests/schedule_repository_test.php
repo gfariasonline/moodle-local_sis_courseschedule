@@ -23,6 +23,7 @@ use local_sis_courseschedule\local\schedule_repository;
  *
  * @package    local_sis_courseschedule
  * @category   test
+ * @author     Thiago Serrão
  * @copyright  2026 SIS
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_sis_courseschedule\local\schedule_repository

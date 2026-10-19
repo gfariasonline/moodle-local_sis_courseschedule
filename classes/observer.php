@@ -22,6 +22,7 @@ use local_sis_courseschedule\local\schedule_repository;
  * Event observer.
  *
  * @package    local_sis_courseschedule
+ * @author     Thiago Serrão
  * @copyright  2026 SIS
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
