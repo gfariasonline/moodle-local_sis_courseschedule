@@ -1,0 +1,92 @@
+.lsc-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.lsc-scroller {
+    max-height: 32rem;
+    overflow: auto;
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem;
+    background: #fff;
+}
+
+.lsc-grid {
+    display: grid;
+    grid-template-columns: 3.5rem repeat(7, minmax(4.5rem, 1fr));
+    user-select: none;
+    touch-action: pan-y;
+}
+
+.lsc-dayhead,
+.lsc-corner {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 0.5rem 0.25rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ced4da;
+}
+
+.lsc-time {
+    height: 1.25rem;
+    padding-right: 0.25rem;
+    font-size: 0.7rem;
+    line-height: 1.25rem;
+    text-align: right;
+    color: #6c757d;
+}
+
+.lsc-cell {
+    height: 1.25rem;
+    border-left: 1px solid #e9ecef;
+    border-top: 1px dotted #e9ecef;
+    cursor: pointer;
+}
+
+.lsc-cell.lsc-hour {
+    border-top: 1px solid #dee2e6;
+}
+
+.lsc-cell.lsc-on {
+    background: #0f6cbf;
+    border-top-color: #0f6cbf;
+}
+
+.lsc-cell.lsc-preview {
+    outline: 1px solid #0a4a85;
+    outline-offset: -1px;
+}
+
+.lsc-cell:not(.lsc-on).lsc-preview {
+    background: #e7f1fb;
+}
+
+.lsc-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.lsc-rowday {
+    min-width: 8rem;
+}
+
+.lsc-row input {
+    width: 5rem;
+}
+
+.lsc-adder {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.lsc-adder select {
+    width: auto;
+}

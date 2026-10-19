@@ -37,9 +37,8 @@ Feature: Course access schedules
     And I am on "CSA" course homepage
     And I navigate to "Access schedules" in current page administration
     And I expand all fieldsets
-    And I set the following fields to these values:
-      | Course time zone | America/Fortaleza |
-      | starttime[0] | 08:00             |
-      | endtime[0]   | 18:00             |
+    And I set the field "Course time zone" to "America/Fortaleza"
+    And I press "Add period (08:00-12:00)"
     And I press "Save changes"
     Then I should see "America/Fortaleza"
+    And I should see "Monday: 08:00 - 12:00"

@@ -56,7 +56,7 @@ if ($form->is_cancelled()) {
 }
 if ($data = $form->get_data()) {
     // The course comes from the validated login above; the hidden form field is never trusted.
-    $slots = \local_sis_courseschedule\form\course_schedule_form::slots_from_data((array) $data);
+    $slots = \local_sis_courseschedule\form\course_schedule_form::slots_from_json((string) ($data->slotsjson ?? ''));
     \local_sis_courseschedule\local\schedule_repository::save($course->id, !empty($data->enabled), $data->timezone, $slots);
     $saved = \local_sis_courseschedule\local\schedule_repository::get_by_course($course->id);
     redirect(

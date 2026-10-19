@@ -61,7 +61,7 @@ https://github.com/gfariasonline/moodle-local_sis_courseschedule/wiki/Tutorial-d
 
 ## Maturity ##
 
-Alpha (release 0.1.0).
+Alpha (release 0.2.0).
 
 ## Author ##
 

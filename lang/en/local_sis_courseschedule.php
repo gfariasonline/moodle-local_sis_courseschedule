@@ -25,7 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['addslots'] = 'Add more intervals';
 $string['allowedhours'] = 'Allowed access hours';
 $string['backtomycourses'] = 'Go to My courses';
 $string['blockedtitle'] = 'Course unavailable';
@@ -35,14 +34,11 @@ $string['currenttime'] = 'Current time in the course: {$a->day}, {$a->time} ({$a
 $string['editschedule'] = 'Course access schedules';
 $string['enabled'] = 'Restrict access to the scheduled hours';
 $string['enabled_help'] = 'When enabled, the course can only be accessed during the intervals below, in the time zone of the course. Users with the "Access the course outside the scheduled hours" capability are not restricted. Enrolments, grades and progress are not changed.';
-$string['endtime'] = 'End (HH:MM)';
-$string['errorendbeforestart'] = 'The end must be later than the start.';
-$string['errorinvalidtime'] = 'Use the HH:MM format (00:00 to 23:59; 24:00 is accepted only as an end).';
 $string['errorinvalidtimezone'] = 'Select a valid time zone.';
-$string['errornointerval'] = 'The restriction is active but no interval was filled in. Add at least one weekly interval below (day, start and end), or clear "Restrict access to the scheduled hours" to leave the course unrestricted.';
-$string['erroroverlap'] = 'This interval overlaps another interval on the same day.';
-$string['errorpartialinterval'] = 'Fill in both the start and the end, or leave both empty.';
-$string['intervalcrossmidnight'] = 'An interval cannot cross midnight. To allow, for example, Monday 22:00 to Tuesday 02:00, add Monday 22:00-24:00 and Tuesday 00:00-02:00.';
+$string['errornointerval'] = 'The restriction is active but no period is selected. Drag over the grid to select the allowed hours, or clear "Restrict access to the scheduled hours" to leave the course unrestricted.';
+$string['errorinvalidslots'] = 'The selected periods are invalid. Reload the page and select them again.';
+$string['erroroverlap'] = 'Two periods overlap on the same day.';
+$string['intervalcrossmidnight'] = 'A period cannot cross midnight. To allow, for example, Monday 22:00 to Tuesday 02:00, select Monday 22:00-24:00 and Tuesday 00:00-02:00.';
 $string['intervalsheader'] = 'Weekly intervals';
 $string['managescheduleblocked'] = 'Manage the access schedule';
 $string['managerbypassnotice'] = 'You can configure this schedule, but you do not have the "Access the course outside the scheduled hours" capability. While the restriction is active, the course content stays blocked for you outside the allowed hours; this configuration page remains available.';
@@ -58,7 +54,16 @@ $string['schedulesummary'] = 'Current saved schedule';
 $string['scheduletimezone'] = 'Time zone: {$a}';
 $string['sis_courseschedule:bypass'] = 'Access the course outside the scheduled hours';
 $string['sis_courseschedule:manage'] = 'Manage the course access schedule';
-$string['starttime'] = 'Start (HH:MM)';
 $string['timezone'] = 'Course time zone';
 $string['timezone_help'] = 'The allowed hours are evaluated in this time zone, regardless of the time zone of each user.';
-$string['weekday'] = 'Day of the week';
+$string['grid_addperiod'] = 'Add period (08:00-12:00)';
+$string['grid_clearweek'] = 'Clear week';
+$string['grid_copyweekdays'] = 'Copy Monday to Tuesday-Friday';
+$string['grid_empty'] = 'No period selected: the course is closed all week.';
+$string['grid_endtime'] = 'End (HH:MM)';
+$string['grid_help'] = 'Click and drag over the grid to allow the hours of a day (blue). Start dragging on a blue cell to remove hours. Each row is 30 minutes. For exact minutes or keyboard use, edit the list below the grid.';
+$string['grid_listtitle'] = 'Allowed periods';
+$string['grid_remove'] = 'Remove';
+$string['grid_starttime'] = 'Start (HH:MM)';
+$string['grid_weekday'] = 'Day of the week';
+$string['weeklygrid'] = 'Allowed hours';

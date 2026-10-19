@@ -25,8 +25,9 @@ require_once($CFG->libdir . '/formslib.php');
 /**
  * Form to configure the access schedule of one course.
  *
- * Custom data: courseid (int) and schedule (stdClass|null, the stored rule). Intervals are repeated
- * elements: weekday, start and end as HH:MM; a row with both times empty is ignored.
+ * Custom data: courseid (int) and schedule (stdClass|null, the stored rule). The intervals are edited in a
+ * weekly grid (AMD module schedule_grid) that serialises them as JSON in the hidden field slotsjson:
+ * a list of objects with weekday (1-7), startminute and endminute.
  *
  * @package    local_sis_courseschedule
  * @author     Thiago Serrão
@@ -34,27 +35,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_schedule_form extends \moodleform {
-    /** @var int Rows shown when there are no stored intervals. */
-    private const MINROWS = 3;
-
-    /**
-     * Parse HH:MM into a minute of the day.
-     *
-     * @param string $value
-     * @param bool $isend Whether 24:00 is accepted.
-     * @return int|null Null when invalid.
-     */
-    public static function parse_time(string $value, bool $isend): ?int {
-        if (!preg_match('/^([01]?\d|2[0-4]):([0-5]\d)$/', trim($value), $matches)) {
-            return null;
-        }
-        $minute = (int) $matches[1] * 60 + (int) $matches[2];
-        if ($minute > 1440 || ($minute === 1440 && !$isend)) {
-            return null;
-        }
-        return $minute;
-    }
-
     /**
      * Form definition.
      */
@@ -83,24 +63,29 @@ class course_schedule_form extends \moodleform {
         $mform->addElement('header', 'intervalshdr', get_string('intervalsheader', 'local_sis_courseschedule'));
         $mform->addElement('static', 'midnightnote', '', get_string('intervalcrossmidnight', 'local_sis_courseschedule'));
 
+        $mform->addElement('hidden', 'slotsjson');
+        $mform->setType('slotsjson', PARAM_RAW);
+        $mform->setDefault('slotsjson', '[]');
+        $mform->addElement('static', 'schedulegrid', get_string('weeklygrid', 'local_sis_courseschedule'),
+            \html_writer::div('', '', ['id' => 'local-sis-courseschedule-grid']));
+
         $days = [];
         foreach ([1 => 'monday', 2 => 'tuesday', 3 => 'wednesday', 4 => 'thursday', 5 => 'friday', 6 => 'saturday',
                 7 => 'sunday'] as $number => $identifier) {
             $days[$number] = get_string($identifier, 'calendar');
         }
-        $row = [
-            $mform->createElement('select', 'weekday', get_string('weekday', 'local_sis_courseschedule'), $days),
-            $mform->createElement('text', 'starttime', get_string('starttime', 'local_sis_courseschedule'), ['size' => 6]),
-            $mform->createElement('text', 'endtime', get_string('endtime', 'local_sis_courseschedule'), ['size' => 6]),
-        ];
-        $count = max(self::MINROWS, count($schedule->slots ?? []) + 1);
-        $options = [
-            'weekday' => ['type' => PARAM_INT],
-            'starttime' => ['type' => PARAM_TEXT],
-            'endtime' => ['type' => PARAM_TEXT],
-        ];
-        $this->repeat_elements($row, $count, $options, 'slotcount', 'addslots', 1,
-            get_string('addslots', 'local_sis_courseschedule'), true);
+        $strings = [];
+        foreach (['help', 'copyweekdays', 'clearweek', 'listtitle', 'addperiod', 'remove', 'empty', 'weekday', 'starttime',
+                'endtime'] as $identifier) {
+            $strings[$identifier] = get_string('grid_' . $identifier, 'local_sis_courseschedule');
+        }
+        global $PAGE;
+        $PAGE->requires->js_call_amd('local_sis_courseschedule/schedule_grid', 'init', [[
+            'selector' => '#local-sis-courseschedule-grid',
+            'field' => 'slotsjson',
+            'days' => $days,
+            'strings' => $strings,
+        ]]);
 
         $this->add_action_buttons();
     }
@@ -115,40 +100,54 @@ class course_schedule_form extends \moodleform {
         if (!$schedule) {
             return [];
         }
-        $data = ['enabled' => (int) $schedule->enabled, 'timezone' => $schedule->timezone,
-            'weekday' => [], 'starttime' => [], 'endtime' => []];
+        $slots = [];
         foreach ($schedule->slots as $slot) {
-            $data['weekday'][] = (int) $slot->weekday;
-            $data['starttime'][] = schedule_formatter::format_minute((int) $slot->startminute);
-            $data['endtime'][] = schedule_formatter::format_minute((int) $slot->endminute);
+            $slots[] = ['weekday' => (int) $slot->weekday, 'startminute' => (int) $slot->startminute,
+                'endminute' => (int) $slot->endminute];
         }
-        return $data;
+        return ['enabled' => (int) $schedule->enabled, 'timezone' => $schedule->timezone,
+            'slotsjson' => json_encode($slots)];
     }
 
     /**
-     * Convert submitted rows into slots; rows with both times empty are skipped.
+     * Decode and check the submitted intervals.
      *
-     * Invalid rows are skipped here; validation() has already rejected them.
+     * @param string $json Value of the slotsjson field.
+     * @return array [slots, error]: valid slots (weekday, startminute, endminute) and an error string identifier or null.
+     */
+    private static function decode_slots(string $json): array {
+        $decoded = json_decode($json === '' ? '[]' : $json, true);
+        if (!is_array($decoded) || !array_is_list($decoded)) {
+            return [[], 'errorinvalidslots'];
+        }
+        $slots = [];
+        foreach ($decoded as $item) {
+            if (!is_array($item) || !is_int($item['weekday'] ?? null) || !is_int($item['startminute'] ?? null)
+                    || !is_int($item['endminute'] ?? null)) {
+                return [[], 'errorinvalidslots'];
+            }
+            [$day, $start, $end] = [$item['weekday'], $item['startminute'], $item['endminute']];
+            if ($day < 1 || $day > 7 || $start < 0 || $end > 1440 || $end <= $start) {
+                return [[], 'errorinvalidslots'];
+            }
+            foreach ($slots as $other) {
+                if ($other['weekday'] === $day && $start < $other['endminute'] && $end > $other['startminute']) {
+                    return [[], 'erroroverlap'];
+                }
+            }
+            $slots[] = ['weekday' => $day, 'startminute' => $start, 'endminute' => $end];
+        }
+        return [$slots, null];
+    }
+
+    /**
+     * Convert the submitted JSON into slots. Invalid input yields no slots; validation() has already rejected it.
      *
-     * @param array $data Submitted data with weekday, starttime, endtime lists.
+     * @param string $json Value of the slotsjson field.
      * @return array[] Slots with weekday, startminute, endminute.
      */
-    public static function slots_from_data(array $data): array {
-        $slots = [];
-        foreach ((array) ($data['starttime'] ?? []) as $i => $start) {
-            $end = ($data['endtime'][$i] ?? '');
-            if (trim((string) $start) === '' && trim((string) $end) === '') {
-                continue;
-            }
-            $startminute = self::parse_time((string) $start, false);
-            $endminute = self::parse_time((string) $end, true);
-            if ($startminute === null || $endminute === null) {
-                continue;
-            }
-            $slots[] = ['weekday' => (int) ($data['weekday'][$i] ?? 1), 'startminute' => $startminute,
-                'endminute' => $endminute];
-        }
-        return $slots;
+    public static function slots_from_json(string $json): array {
+        return self::decode_slots($json)[0];
     }
 
     /**
@@ -160,43 +159,11 @@ class course_schedule_form extends \moodleform {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        $valid = [];
-        foreach ((array) ($data['starttime'] ?? []) as $i => $start) {
-            $end = (string) ($data['endtime'][$i] ?? '');
-            $start = (string) $start;
-            if (trim($start) === '' && trim($end) === '') {
-                continue;
-            }
-            if (trim($start) === '' || trim($end) === '') {
-                $errors["endtime[$i]"] = get_string('errorpartialinterval', 'local_sis_courseschedule');
-                continue;
-            }
-            $startminute = self::parse_time($start, false);
-            $endminute = self::parse_time($end, true);
-            if ($startminute === null) {
-                $errors["starttime[$i]"] = get_string('errorinvalidtime', 'local_sis_courseschedule');
-            }
-            if ($endminute === null) {
-                $errors["endtime[$i]"] = get_string('errorinvalidtime', 'local_sis_courseschedule');
-            }
-            if ($startminute === null || $endminute === null) {
-                continue;
-            }
-            if ($endminute <= $startminute) {
-                $errors["endtime[$i]"] = get_string('errorendbeforestart', 'local_sis_courseschedule');
-                continue;
-            }
-            $weekday = (int) ($data['weekday'][$i] ?? 1);
-            foreach ($valid as $other) {
-                if ($other['weekday'] === $weekday && $startminute < $other['end'] && $endminute > $other['start']) {
-                    $errors["endtime[$i]"] = get_string('erroroverlap', 'local_sis_courseschedule');
-                    break;
-                }
-            }
-            $valid[] = ['weekday' => $weekday, 'start' => $startminute, 'end' => $endminute];
-        }
-        if (!empty($data['enabled']) && !$valid && !$errors) {
-            $errors['starttime[0]'] = get_string('errornointerval', 'local_sis_courseschedule');
+        [$slots, $error] = self::decode_slots((string) ($data['slotsjson'] ?? ''));
+        if ($error) {
+            $errors['schedulegrid'] = get_string($error, 'local_sis_courseschedule');
+        } else if (!empty($data['enabled']) && !$slots) {
+            $errors['schedulegrid'] = get_string('errornointerval', 'local_sis_courseschedule');
         }
         if (!in_array((string) ($data['timezone'] ?? ''), \DateTimeZone::listIdentifiers(), true)) {
             $errors['timezone'] = get_string('errorinvalidtimezone', 'local_sis_courseschedule');
